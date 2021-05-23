@@ -1,0 +1,71 @@
+.underline-custom1 {
+  background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 0.2em;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease-in;
+}
+
+.centerText {
+  display: flex;
+  justify-content: center;
+  white-space: break-spaces;
+}
+
+.title1 {
+  font-variant: all-petite-caps;
+  font-size: 2.25rem;
+}
+
+.title2 {
+  font-variant: all-petite-caps;
+  font-size: 300%;
+}
+
+.title3 {
+  font-variant: all-petite-caps;
+  font-size: 1.55rem;
+}
+
+.bodyText1 {
+  font-variant: all-petite-caps;
+  font-size: 1.45rem;
+}
+
+.bodyText2 {
+  font-variant: all-petite-caps;
+  font-size: 1.25rem;
+  white-space: break-spaces;
+}
+
+.bodyText3 {
+  font-size: 1.05rem;
+  white-space: break-spaces;
+  margin-bottom: 20px;
+}
+
+.descriptionTitle {
+  text-align: left;
+}
+
+.descriptionBody1 {
+  text-align: justify;
+}
+
+.descriptionButton1 {
+  text-align: end;
+}
+
+.footTitle {
+  font-variant: contextual;
+  text-align: center;
+}
+
+.activeText {
+  color: rgb(238, 238, 238);
+}
+
+.buttonText1 {
+  font-variant: all-petite-caps;
+  font-size: 2.25rem;
+}
