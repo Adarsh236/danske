@@ -2,6 +2,23 @@ import * as XLSX from "xlsx";
 
 import { DataSeparate } from "./DataSeparate";
 
+const header = {
+  header: 1,
+};
+
+export const updateJson = (data, json) => {
+  let newJson = [];
+  newJson.push(json[0]);
+  data.forEach((obj) => {
+    let values = Object.keys(obj).map(function (key) {
+      return obj[key];
+    });
+    values.pop();
+    newJson.push(values);
+  });
+  return newJson;
+};
+
 export const handleFileUpload = (e, setName, setColumns, setData, setJson) => {
   const reader = new FileReader();
   const file = e.target.files[0];
@@ -14,12 +31,9 @@ export const handleFileUpload = (e, setName, setColumns, setData, setJson) => {
     const worksheetName = wb.SheetNames[0];
     const worksheet = wb.Sheets[worksheetName];
     // Convert array of arrays
-    const convertedCSVFromSheet = XLSX.utils.sheet_to_csv(worksheet, {
-      header: 1,
-    });
-    const convertedJsonFromSheet = XLSX.utils.sheet_to_json(worksheet, {
-      header: 1,
-    });
+
+    const convertedCSVFromSheet = XLSX.utils.sheet_to_csv(worksheet, header);
+    const convertedJsonFromSheet = XLSX.utils.sheet_to_json(worksheet, header);
     const getCollection = DataSeparate(convertedCSVFromSheet);
 
     setName(file.name);
@@ -30,17 +44,23 @@ export const handleFileUpload = (e, setName, setColumns, setData, setJson) => {
 
   try {
     reader.readAsBinaryString(file);
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };
 
-export const handleFileDownload = (name, data) => {
-  const ws = XLSX.utils.json_to_sheet(data, { skipHeader: true });
+export const handleFileDownload = (name, data, json) => {
+  const newJson = updateJson(data, json);
+  const ws = XLSX.utils.json_to_sheet(newJson, { skipHeader: true });
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "sheet");
-  const buf = XLSX.write(wb, { bookType: "csv", type: "buffer" }); // generate a nodejs buffer
-  const str = XLSX.write(wb, { bookType: "csv", type: "binary" }); // generate a binary string in web browser
+  try {
+    XLSX.utils.book_append_sheet(wb, ws, "sheet");
+    XLSX.writeFile(wb, name);
+  } catch (error) {}
+};
 
-  XLSX.writeFile(wb, name);
+export const convertFromJson = (json, setColumns, setData) => {
+  const worksheet = XLSX.utils.json_to_sheet(json, { skipHeader: true });
+  const convertedCSVFromSheet = XLSX.utils.sheet_to_csv(worksheet, header);
+  const getCollection = DataSeparate(convertedCSVFromSheet);
+  setColumns(getCollection.columns);
+  setData(getCollection.data);
 };

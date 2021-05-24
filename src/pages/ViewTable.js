@@ -1,25 +1,44 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import SaveIcon from "@material-ui/icons/Save";
 import SaveAltOutlinedIcon from "@material-ui/icons/SaveAltOutlined";
 import Button from "@material-ui/core/Button";
+import ApiService from "api/ApiService";
 
 import {
   updateJson,
-  handleFileUpload,
+  convertFromJson,
   handleFileDownload,
 } from "components/CustomFileReader";
 import CustomTableView from "components/CustomTableView";
 import Loader from "components/Loader";
-import { addUserFile } from "redux/actions/userFile";
+import { updateUserFile } from "redux/actions/userFile";
 
-export default function Home() {
+const ViewTable = ({ id }) => {
   const dispatch = useDispatch();
-  const [name, setName] = useState("");
+  const [file, setFile] = useState();
+  const [name, setName] = useState();
   const [columns, setColumns] = useState([]);
   const [data, setData] = useState([]);
   const [json, setJson] = useState();
-  const isLoading = useSelector((state) => state.userFileReducer.loading);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserFileById(id);
+  }, []);
+
+  const fetchUserFileById = async (id) => {
+    ApiService.getUserFilesById(id)
+      .then((res) => {
+        const data = res.result[0];
+        setFile(data);
+        setName(data.name);
+        setJson(data.jsonFile);
+        convertFromJson(data.jsonFile, setColumns, setData);
+      })
+      .catch((e) => {});
+    setIsLoading(false);
+  };
 
   return (
     <div>
@@ -27,26 +46,20 @@ export default function Home() {
         <div className="container">
           <div className="row justify-content-center align-items-center height1">
             <div className="col-8 ">
-              <h3>Upload CSV file</h3>
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls"
-                onChange={(e) =>
-                  handleFileUpload(e, setName, setColumns, setData, setJson)
-                }
-              />
+              <h3>View Table</h3>
             </div>
           </div>
         </div>
       </div>
       <div className="box1">
-        <div>
+        {isLoading ? (
+          <Loader />
+        ) : (
           <span className="underline-custom1 title2">
-            {name ? name.split(".")[0] : "No Table Found"}
+            {name ? name : "No Table Found"}
           </span>
-        </div>
-        <Loader isLoading={isLoading} />
-        {!isLoading ? render_buttons(name, data, json, dispatch) : null}
+        )}
+        {render_buttons(name, data, json, file, dispatch)}
         <CustomTableView
           name={name}
           columns={columns}
@@ -56,18 +69,16 @@ export default function Home() {
       </div>
     </div>
   );
-}
-
-const handleFileSave = async (name, data, json, dispatch) => {
-  const newJson = updateJson(data, json);
-  const body = JSON.stringify({
-    name: name,
-    jsonFile: newJson,
-  });
-  dispatch(addUserFile(body));
 };
 
-const render_buttons = (name, data, json, dispatch) => {
+const handleFileUpdate = async (data, json, file, dispatch) => {
+  const newJson = updateJson(data, json);
+  file.jsonFile = newJson;
+  console.log("file", file);
+  dispatch(updateUserFile(file.id, file));
+};
+
+const render_buttons = (name, data, json, file, dispatch) => {
   if (name)
     return (
       <div style={{ textAlign: "center", justifyContent: "space-between" }}>
@@ -76,17 +87,17 @@ const render_buttons = (name, data, json, dispatch) => {
           color="primary"
           size="medium"
           style={{ margin: "10px" }}
-          onClick={() => handleFileSave(name, data, json, dispatch)}
+          onClick={() => handleFileUpdate(data, json, file, dispatch)}
         >
           <SaveIcon />
-          Save To Database
+          Update In Database
         </Button>
 
         <Button
           variant="contained"
           color="primary"
           size="medium"
-          onClick={() => handleFileDownload(name, data, json)}
+          onClick={() => handleFileDownload("NewFile.csv", data, json)}
         >
           <SaveAltOutlinedIcon />
           Download File
@@ -94,3 +105,5 @@ const render_buttons = (name, data, json, dispatch) => {
       </div>
     );
 };
+
+export default ViewTable;
