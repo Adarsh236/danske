@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Georgia, "Times New Roman", Times, serif;
+  background-color: rgb(238, 238, 238);
 }
 
 .App {
