@@ -74,7 +74,6 @@ const ViewTable = ({ id }) => {
 const handleFileUpdate = async (data, json, file, dispatch) => {
   const newJson = updateJson(data, json);
   file.jsonFile = newJson;
-  console.log("file", file);
   dispatch(updateUserFile(file.id, file));
 };
 

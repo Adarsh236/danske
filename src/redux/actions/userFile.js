@@ -41,7 +41,6 @@ export const addUserFile = (file) => {
     dispatch(userFileRequest(true));
     ApiService.addUserFile(file)
       .then((res) => {
-        console.log("addUserFile", res);
         dispatch(userFileRequest(false));
       })
       .catch((e) => {
